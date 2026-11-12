@@ -96,12 +96,14 @@ export function SiteHeader() {
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
+              nativeButton={false}
               render={<Link href="/sign-in" />}
               className="h-9.5 rounded-[8px] px-4 text-[18px] leading-[1.45] font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
             >
               Sign In
             </Button>
             <Button
+              nativeButton={false}
               render={<Link href="/sign-up" />}
               className="h-13 rounded-[8px] border border-[#090a15]/10 bg-brand px-5.5 text-[18px] leading-[1.45] font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
             >
@@ -193,6 +195,7 @@ export function SiteHeader() {
             <div className="flex flex-col gap-2 border-t border-white/[0.07] p-4">
               <Button
                 variant="outline"
+                nativeButton={false}
                 render={<Link href="/sign-in" />}
                 onClick={() => setOpen(false)}
                 className="h-12 w-full rounded-[8px] border-white/[0.07] bg-transparent text-base font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
@@ -200,6 +203,7 @@ export function SiteHeader() {
                 Sign In
               </Button>
               <Button
+                nativeButton={false}
                 render={<Link href="/sign-up" />}
                 onClick={() => setOpen(false)}
                 className="h-12 w-full rounded-[8px] bg-brand text-base font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
