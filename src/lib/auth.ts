@@ -26,9 +26,11 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: "string",
+        type: ["seeker", "recruiter", "admin"],
         required: true,
         defaultValue: "seeker",
+        // `input: false` blocks the client from sending the field and returns
+        // FIELD_NOT_ALLOWED, so it must stay `true` for the sign-up form.
         input: true,
       },
     },

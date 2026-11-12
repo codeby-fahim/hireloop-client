@@ -8,6 +8,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   LoaderCircleIcon,
+  ShieldCheckIcon,
   UserRoundIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ export type AuthMode = "sign-in" | "sign-up";
 type AuthFormProps = {
   mode: AuthMode;
 };
+
+type UserRole = "seeker" | "recruiter" | "admin";
 
 const copy = {
   "sign-in": {
@@ -51,6 +54,27 @@ const checkboxClasses =
 
 const labelClasses = "text-[13px] font-medium tracking-[0.01em] text-white/70";
 
+const roles = [
+  {
+    value: "seeker" satisfies UserRole,
+    label: "Job Seeker",
+    description: "Find your next role",
+    icon: UserRoundIcon,
+  },
+  {
+    value: "recruiter" satisfies UserRole,
+    label: "Recruiter",
+    description: "Hire great talent",
+    icon: BriefcaseBusinessIcon,
+  },
+  {
+    value: "admin" satisfies UserRole,
+    label: "Admin",
+    description: "Manage the platform",
+    icon: ShieldCheckIcon,
+  },
+] as const;
+
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -69,7 +93,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
-    const role = String(formData.get("role") ?? "seeker");
+    const roleValue = formData.get("role");
+    const role: UserRole =
+      roleValue === "recruiter" || roleValue === "admin" ? roleValue : "seeker";
 
     if (isSignUp && password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -208,55 +234,36 @@ export function AuthForm({ mode }: AuthFormProps) {
             {isSignUp && (
               <fieldset className="flex flex-col gap-2">
                 <legend className={labelClasses}>I am a</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <label className="group relative flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/3 p-3 transition-colors hover:border-white/20 has-checked:border-brand/70 has-checked:bg-brand/10 has-focus-visible:ring-2 has-focus-visible:ring-brand/50">
-                    <input
-                      type="radio"
-                      name="role"
-                      value="seeker"
-                      defaultChecked
-                      className="peer sr-only"
-                    />
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/6 text-white/60 transition-colors peer-checked:bg-brand/20 peer-checked:text-brand-soft">
-                      <UserRoundIcon
-                        className="size-4.5"
-                        strokeWidth={1.75}
-                        aria-hidden="true"
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {roles.map((role) => (
+                    <label
+                      key={role.value}
+                      className="group relative flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/3 p-3 transition-colors hover:border-white/20 has-checked:border-brand/70 has-checked:bg-brand/10 has-focus-visible:ring-2 has-focus-visible:ring-brand/50 sm:flex-col sm:gap-2.5"
+                    >
+                      <input
+                        type="radio"
+                        name="role"
+                        value={role.value}
+                        defaultChecked={role.value === "seeker"}
+                        className="peer sr-only"
                       />
-                    </span>
-                    <span className="min-w-0 pt-0.5">
-                      <span className="block text-sm font-medium text-white">
-                        Job Seeker
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/6 text-white/60 transition-colors peer-checked:bg-brand/20 peer-checked:text-brand-soft">
+                        <role.icon
+                          className="size-4.5"
+                          strokeWidth={1.75}
+                          aria-hidden="true"
+                        />
                       </span>
-                      <span className="mt-0.5 block text-xs leading-4 text-white/45">
-                        Find your next role
+                      <span className="min-w-0 pt-0.5 sm:pt-0">
+                        <span className="block text-sm font-medium text-white">
+                          {role.label}
+                        </span>
+                        <span className="mt-0.5 block text-xs leading-4 text-white/45">
+                          {role.description}
+                        </span>
                       </span>
-                    </span>
-                  </label>
-
-                  <label className="group relative flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/3 p-3 transition-colors hover:border-white/20 has-checked:border-brand/70 has-checked:bg-brand/10 has-focus-visible:ring-2 has-focus-visible:ring-brand/50">
-                    <input
-                      type="radio"
-                      name="role"
-                      value="recruiter"
-                      className="peer sr-only"
-                    />
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/6 text-white/60 transition-colors peer-checked:bg-brand/20 peer-checked:text-brand-soft">
-                      <BriefcaseBusinessIcon
-                        className="size-4.5"
-                        strokeWidth={1.75}
-                        aria-hidden="true"
-                      />
-                    </span>
-                    <span className="min-w-0 pt-0.5">
-                      <span className="block text-sm font-medium text-white">
-                        Recruiter
-                      </span>
-                      <span className="mt-0.5 block text-xs leading-4 text-white/45">
-                        Hire great talent
-                      </span>
-                    </span>
-                  </label>
+                    </label>
+                  ))}
                 </div>
               </fieldset>
             )}
