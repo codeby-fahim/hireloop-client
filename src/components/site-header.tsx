@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MenuIcon, XIcon } from "lucide-react";
+import { LogOutIcon, MenuIcon, XIcon } from "lucide-react";
+import { authClient, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,10 +35,23 @@ const focusRing =
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const user = session?.user;
+  const displayName = user?.name?.trim() || user?.email || "";
+  const initial = displayName.charAt(0).toUpperCase();
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    setOpen(false);
+    router.replace("/");
+    router.refresh();
+  };
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -94,21 +108,47 @@ export function SiteHeader() {
           <span aria-hidden="true" className="h-6 w-px bg-[#a8a8a8]/40" />
 
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              nativeButton={false}
-              render={<Link href="/sign-in" />}
-              className="h-9.5 rounded-[8px] px-4 text-[18px] leading-[1.45] font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
-            >
-              Sign In
-            </Button>
-            <Button
-              nativeButton={false}
-              render={<Link href="/sign-up" />}
-              className="h-13 rounded-[8px] border border-[#090a15]/10 bg-brand px-5.5 text-[18px] leading-[1.45] font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
-            >
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className="grid size-9 place-items-center rounded-full border border-white/10 bg-brand/25 text-sm font-semibold text-brand-soft"
+                  >
+                    {initial}
+                  </span>
+                  <span className="max-w-40 truncate text-[15px] leading-[1.45] text-ink">
+                    {displayName}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleSignOut}
+                  className="h-9.5 gap-2 rounded-[8px] border-white/[0.07] bg-transparent px-4 text-[16px] leading-[1.45] font-semibold text-ink hover:bg-white/5 hover:text-white"
+                >
+                  <LogOutIcon className="size-4" aria-hidden="true" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  nativeButton={false}
+                  render={<Link href="/sign-in" />}
+                  className="h-9.5 rounded-[8px] px-4 text-[18px] leading-[1.45] font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/sign-up" />}
+                  className="h-13 rounded-[8px] border border-[#090a15]/10 bg-brand px-5.5 text-[18px] leading-[1.45] font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
+                >
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </nav>
 
@@ -193,23 +233,56 @@ export function SiteHeader() {
             </nav>
 
             <div className="flex flex-col gap-2 border-t border-white/[0.07] p-4">
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/sign-in" />}
-                onClick={() => setOpen(false)}
-                className="h-12 w-full rounded-[8px] border-white/[0.07] bg-transparent text-base font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
-              >
-                Sign In
-              </Button>
-              <Button
-                nativeButton={false}
-                render={<Link href="/sign-up" />}
-                onClick={() => setOpen(false)}
-                className="h-12 w-full rounded-[8px] bg-brand text-base font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
-              >
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 pb-1">
+                    <span
+                      aria-hidden="true"
+                      className="grid size-10 shrink-0 place-items-center rounded-full border border-white/10 bg-brand/25 text-sm font-semibold text-brand-soft"
+                    >
+                      {initial}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-white">
+                        {displayName}
+                      </p>
+                      {user.email && (
+                        <p className="truncate text-xs text-ink/60">
+                          {user.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleSignOut}
+                    className="h-12 w-full gap-2 rounded-[8px] border-white/[0.07] bg-transparent text-base font-semibold text-ink hover:bg-white/5 hover:text-white"
+                  >
+                    <LogOutIcon className="size-4.5" aria-hidden="true" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    nativeButton={false}
+                    render={<Link href="/sign-in" />}
+                    onClick={() => setOpen(false)}
+                    className="h-12 w-full rounded-[8px] border-white/[0.07] bg-transparent text-base font-semibold text-brand-soft hover:bg-white/5 hover:text-[#8b84ff]"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    nativeButton={false}
+                    render={<Link href="/sign-up" />}
+                    onClick={() => setOpen(false)}
+                    className="h-12 w-full rounded-[8px] bg-brand text-base font-medium text-ink shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] hover:bg-[#6c63ff]"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>
