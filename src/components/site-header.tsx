@@ -24,11 +24,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const links = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/companies" },
-  { label: "Pricing", href: "/pricing" },
-];
+
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
@@ -38,6 +34,13 @@ export function SiteHeader() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+
+  const links = [
+  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Company", href: "/companies" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Dashboard", href: `/dashboard/${session?.user.role || "seeker"}` },
+];
 
   const user = session?.user;
   const displayName = user?.name?.trim() || user?.email || "";
@@ -62,6 +65,11 @@ export function SiteHeader() {
     desktop.addEventListener("change", onChange);
     return () => desktop.removeEventListener("change", onChange);
   }, []);
+
+  // Do not render the public site header on dashboard routes
+  if (pathname.startsWith("/dashboard")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface/85 pt-3 backdrop-blur-xl sm:pt-4">

@@ -1,5 +1,8 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 const footerLinks = [
   {
@@ -29,6 +32,13 @@ const footerLinks = [
 ];
 
 const Footer = () => {
+  const pathname = usePathname();
+
+  // Do not render marketing footer on dashboard routes
+  if (pathname.startsWith("/dashboard")) {
+    return null;
+  }
+
   return (
     <footer className="bg-[#050506] text-white border-t border-white/6 pt-16 pb-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto">

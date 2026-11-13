@@ -51,7 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${spaceMono.variable} ${instrumentSans.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${spaceMono.variable} ${instrumentSans.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface text-ink">
         <SiteHeader />
