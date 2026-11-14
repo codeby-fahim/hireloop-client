@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { createJob } from "@/lib/actions/jobs";
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const;
 type JobType = (typeof jobTypes)[number];
@@ -180,10 +181,11 @@ const NewJobsPage = () => {
       // router.push("/dashboard/recruiter/jobs");
       // router.refresh();
 
-      console.log("New job payload", payload);
-      setSuccess(
-        "Job details captured. Connect the API endpoint to publish the listing.",
-      );
+      const result = await createJob(payload);
+      toast.success(' Successfully  publish this job.');
+      
+      
+      console.log("New job payload", result);
     } catch {
       setError("Something went wrong. Check your connection and try again.");
     } finally {
