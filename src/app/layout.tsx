@@ -10,6 +10,7 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 import Footer from "@/components/auth/Footer";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-surface text-ink">
         <SiteHeader />
         {children}
+        <Toaster richColors position="top-right" />
         <Footer />
       </body>
     </html>
