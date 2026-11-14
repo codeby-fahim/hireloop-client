@@ -10,7 +10,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <SidebarInset className="min-h-screen bg-[#08080a] text-ink">
+      <SidebarInset className="min-h-screen min-w-0 bg-[#08080a] text-ink">
         <header className="flex h-15 shrink-0 items-center gap-3 border-b border-white/8 px-4">
           <SidebarTrigger className="-ml-1 text-zinc-400 hover:text-white" />
           <Separator orientation="vertical" className="h-4 bg-white/10" />

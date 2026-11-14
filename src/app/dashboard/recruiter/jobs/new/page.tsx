@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { createJob } from "@/lib/actions/jobs";
+import { redirect } from "next/navigation";
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const;
 type JobType = (typeof jobTypes)[number];
@@ -182,8 +183,14 @@ const NewJobsPage = () => {
       // router.refresh();
 
       const result = await createJob(payload);
-      toast.success(' Successfully  publish this job.');
-      
+      if(result.ok){
+        toast.success(' Successfully  publish this job.');
+      }
+      if(!result.ok){
+        toast.error('Could not publish this job. Try again.')
+      }
+      redirect("/dashboard/recruiter/jobs")
+
       
       console.log("New job payload", result);
     } catch {
@@ -226,24 +233,7 @@ const NewJobsPage = () => {
           </p>
         </div>
 
-        <button
-          type="submit"
-          form="new-job-form"
-          disabled={isPending}
-          className={cn(
-            "group inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 self-start rounded-lg bg-linear-to-r from-brand to-[#8b5cf6] px-4 text-[13px] font-medium text-white shadow-[0_10px_28px_-10px_rgba(109,75,255,0.95)] transition-all duration-200 hover:brightness-110 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60",
-            focusRing,
-          )}
-        >
-          {isPending ? (
-            <LoaderCircleIcon className="size-4 animate-spin" aria-hidden="true" />
-          ) : null}
-          <span>Publish Job</span>
-          <ArrowRightIcon
-            className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-            aria-hidden="true"
-          />
-        </button>
+       
       </div>
 
       {/* Form */}
