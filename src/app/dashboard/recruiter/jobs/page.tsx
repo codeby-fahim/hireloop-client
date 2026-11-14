@@ -6,7 +6,6 @@ import {
   MapPinIcon,
   PencilIcon,
   PlusIcon,
-  Trash2Icon,
   UsersIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import {
   type LocationType,
   type Salary,
 } from "@/lib/jobs/normalize";
+import { DeleteJobsDialog } from "@/app/components/DeleteJobsDialog";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a]";
@@ -108,17 +108,7 @@ function JobActions({ job, className }: { job: JobPost; className?: string }) {
         Update
       </button>
 
-      <button
-        type="button"
-        aria-label={`Delete ${job.title}`}
-        title="Delete job post"
-        className={cn(
-          "inline-flex size-7 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/4 text-zinc-400 transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400",
-          focusRing,
-        )}
-      >
-        <Trash2Icon className="size-4" strokeWidth={1.6} aria-hidden="true" />
-      </button>
+      <DeleteJobsDialog jobId={job._id} jobTitle={job.title} />
 
       <button
         type="button"
@@ -171,7 +161,7 @@ function JobsTable({ jobs }: { jobs: JobPost[] }) {
           <tbody>
             {jobs.map((job) => (
               <tr
-                key={job.id}
+                key={job._id}
                 className="border-b border-white/5 transition-colors last:border-b-0 hover:bg-white/2"
               >
                 <td className={tableCell}>
@@ -266,7 +256,7 @@ function JobsCards({ jobs }: { jobs: JobPost[] }) {
       <ul className="grid grid-cols-1 gap-3 @[700px]:grid-cols-2">
         {jobs.map((job) => (
           <li
-            key={job.id}
+            key={job._id}
             className="@container rounded-xl border border-white/[0.07] bg-[#0b0b0e] p-4"
           >
             <div className="flex items-start justify-between gap-3">

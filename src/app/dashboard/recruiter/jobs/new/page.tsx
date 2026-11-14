@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { createJob } from "@/lib/actions/jobs";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const;
 type JobType = (typeof jobTypes)[number];
@@ -116,6 +116,7 @@ function FormSection({
 }
 
 const NewJobsPage = () => {
+  const router = useRouter();
   const [jobType, setJobType] = useState<JobType>("Full-time");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -165,39 +166,24 @@ const NewJobsPage = () => {
     setIsPending(true);
 
     try {
-      // TODO: replace with the real jobs API endpoint.
-      // const response = await fetch("/api/jobs", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
-      //
-      // if (response.ok) {
-        //  toast.success(' Successfully  publish this job.');
-      // }
-      // if (!response.ok) {
-      //   throw new Error("Could not publish this job. Try again.");
-      // }
-      //
-      // router.push("/dashboard/recruiter/jobs");
-      // router.refresh();
-
       const result = await createJob(payload);
-      if(result.ok){
-        toast.success(' Successfully  publish this job.');
-      }
-      if(!result.ok){
-        toast.error('Could not publish this job. Try again.')
-      }
-      redirect("/dashboard/recruiter/jobs")
 
-      
-      console.log("New job payload", result);
+      if (!result.ok) {
+        setError(result.message ?? "Could not publish this job. Try again.");
+        toast.error("Could not publish this job. Try again.");
+        return;
+      }
+
+      toast.success("Successfully published this job.");
     } catch {
       setError("Something went wrong. Check your connection and try again.");
+      return;
     } finally {
       setIsPending(false);
     }
+
+    router.push("/dashboard/recruiter/jobs");
+    router.refresh();
   };
 
   return (

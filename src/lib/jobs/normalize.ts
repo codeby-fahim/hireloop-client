@@ -24,7 +24,7 @@ export type Salary = {
 };
 
 export type JobPost = {
-  id: string;
+  _id: string;
   title: string;
   department: string;
   company: string;
@@ -202,7 +202,7 @@ export const toJobPost = (
   const iconName = asString(record.icon);
 
   return {
-    id,
+    _id: id,
     title,
     department:
       asString(record.department) ?? asString(record.category) ?? "General",
