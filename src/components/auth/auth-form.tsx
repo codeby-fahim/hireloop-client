@@ -18,13 +18,11 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-export type AuthMode = "sign-in" | "sign-up";
+import type { AuthMode, UserRole } from "@/types/auth";
 
 type AuthFormProps = {
   mode: AuthMode;
 };
-
-type UserRole = "seeker" | "recruiter" | "admin";
 
 const copy = {
   "sign-in": {

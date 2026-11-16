@@ -1,17 +1,10 @@
-import type { JobFormValues } from "@/app/dashboard/recruiter/jobs/new/page";
+import type {
+  CreateJobResult,
+  DeleteJobResult,
+  JobFormValues,
+} from "@/types/jobs";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-export type CreateJobResult = {
-  ok: boolean;
-  data: unknown;
-  message?: string;
-};
-
-export type DeleteJobResult = {
-  acknowledged: boolean;
-  deletedCount: number;
-};
 
 const readJson = async (res: Response): Promise<unknown> => {
   try {
@@ -71,6 +64,7 @@ export const deleteJob = async (jobId: string): Promise<DeleteJobResult> => {
 
   return {
     acknowledged: payload?.acknowledged ?? true,
-    deletedCount: typeof payload?.deletedCount === "number" ? payload.deletedCount : 0,
+    deletedCount:
+      typeof payload?.deletedCount === "number" ? payload.deletedCount : 0,
   };
 };

@@ -10,48 +10,21 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getJobs } from "@/lib/api/jobs";
-import {
-  toJobPosts,
-  type JobPost,
-  type JobStatus,
-  type LocationType,
-  type Salary,
-} from "@/lib/jobs/normalize";
+import { jobIcons } from "@/lib/jobs/icons";
+import { formatDeadline, formatSalary } from "@/lib/jobs/format";
+import { toJobPosts } from "@/lib/jobs/normalize";
+import type {
+  JobIconName,
+  JobPost,
+  JobStatus,
+  LocationType,
+} from "@/types/jobs";
 import { DeleteJobsDialog } from "@/app/components/DeleteJobsDialog";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a]";
 
 const tableCell = "px-3 py-3 first:pl-5 last:pr-5";
-
-function formatSalary({ min, max, currency, period }: Salary) {
-  const compact = (value: number) =>
-    value >= 1000 ? `${Math.round(value / 1000)}k` : String(value);
-
-  if (!min && !max) return "Not disclosed";
-  if (!min) return `Up to ${currency}${compact(max)} / ${period}`;
-  if (!max) return `From ${currency}${compact(min)} / ${period}`;
-  if (min === max) return `${currency}${compact(min)} / ${period}`;
-
-  return `${currency}${compact(min)} – ${currency}${compact(max)} / ${period}`;
-}
-
-function formatDeadline(deadline: string) {
-  if (!deadline) return "—";
-
-  const date = new Date(
-    /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? `${deadline}T00:00:00Z` : deadline,
-  );
-
-  if (Number.isNaN(date.getTime())) return "—";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-}
 
 function LocationIcon({ type }: { type: LocationType }) {
   const Icon = type === "remote" ? GlobeIcon : MapPinIcon;
@@ -63,6 +36,18 @@ function LocationIcon({ type }: { type: LocationType }) {
       aria-hidden="true"
     />
   );
+}
+
+function JobIcon({
+  name,
+  className,
+}: {
+  name: JobIconName;
+  className?: string;
+}) {
+  const Icon = jobIcons[name];
+
+  return <Icon className={className} strokeWidth={1.75} aria-hidden="true" />;
 }
 
 function StatusBadge({ status }: { status: JobStatus }) {
@@ -172,10 +157,9 @@ function JobsTable({ jobs }: { jobs: JobPost[] }) {
                         job.accent.box,
                       )}
                     >
-                      <job.icon
+                      <JobIcon
+                        name={job.icon}
                         className={cn("size-3.5", job.accent.icon)}
-                        strokeWidth={1.75}
-                        aria-hidden="true"
                       />
                     </span>
                     <div className="min-w-0">
@@ -267,10 +251,9 @@ function JobsCards({ jobs }: { jobs: JobPost[] }) {
                     job.accent.box,
                   )}
                 >
-                  <job.icon
+                  <JobIcon
+                    name={job.icon}
                     className={cn("size-4", job.accent.icon)}
-                    strokeWidth={1.75}
-                    aria-hidden="true"
                   />
                 </span>
                 <div className="min-w-0">

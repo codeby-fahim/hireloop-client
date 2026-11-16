@@ -14,42 +14,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, pickOption } from "@/lib/utils";
 import { toast } from "sonner";
 import { createJob } from "@/lib/actions/jobs";
 import { useRouter } from "next/navigation";
-
-const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const;
-type JobType = (typeof jobTypes)[number];
-
-const jobCategories = [
-  "Engineering & Tech",
-  "Design",
-  "Product",
-  "Marketing",
-  "Sales",
-  "Operations",
-  "Finance",
-  "People & HR",
-  "Other",
-] as const;
-
-const salaryFrequencies = ["per hour", "per day", "per month", "per year"] as const;
-
-export type JobFormValues = {
-  title: string;
-  company: string;
-  category: string;
-  jobType: JobType;
-  remote: boolean;
-  location: string;
-  applicationDeadline: string;
-  minSalary: number;
-  maxSalary: number;
-  salaryFrequency: string;
-  responsibilities: string;
-  qualifications: string;
-};
+import {
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  SALARY_FREQUENCIES,
+  type JobFormValues,
+  type JobType,
+} from "@/types/jobs";
 
 const fieldBase =
   "h-10 rounded-lg border-white/[0.08] bg-[#101014] px-3 text-[13px] text-zinc-200 shadow-none placeholder:text-zinc-600 focus-visible:border-brand/70 focus-visible:ring-2 focus-visible:ring-brand/25 dark:bg-[#101014]";
@@ -137,14 +112,18 @@ const NewJobsPage = () => {
     const payload: JobFormValues = {
       title: get("title"),
       company: get("company"),
-      category: get("category"),
+      category: pickOption(JOB_CATEGORIES, get("category"), "Other"),
       jobType,
       remote: formData.get("remote") === "on",
       location: get("location"),
       applicationDeadline: get("deadline"),
       minSalary: toNumber("minSalary"),
       maxSalary: toNumber("maxSalary"),
-      salaryFrequency: get("frequency"),
+      salaryFrequency: pickOption(
+        SALARY_FREQUENCIES,
+        get("frequency"),
+        "per year",
+      ),
       responsibilities: get("responsibilities"),
       qualifications: get("qualifications"),
     };
@@ -299,7 +278,7 @@ const NewJobsPage = () => {
                   required
                   className={selectBase}
                 >
-                  {jobCategories.map((category) => (
+                  {JOB_CATEGORIES.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>
@@ -322,7 +301,7 @@ const NewJobsPage = () => {
               aria-label="Job type"
               className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             >
-              {jobTypes.map((type) => {
+              {JOB_TYPES.map((type) => {
                 const active = jobType === type;
 
                 return (
@@ -495,7 +474,7 @@ const NewJobsPage = () => {
                   defaultValue="per hour"
                   className={selectBase}
                 >
-                  {salaryFrequencies.map((frequency) => (
+                  {SALARY_FREQUENCIES.map((frequency) => (
                     <option key={frequency} value={frequency}>
                       {frequency}
                     </option>

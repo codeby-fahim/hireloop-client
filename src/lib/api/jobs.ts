@@ -1,11 +1,5 @@
 import { connection } from "next/server";
-
-export type JobApiRecord = Record<string, unknown>;
-
-export type JobsResult = {
-  jobs: JobApiRecord[];
-  error: string | null;
-};
+import type { JobApiRecord, JobsResult } from "@/types/jobs";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 

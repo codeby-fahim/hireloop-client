@@ -28,8 +28,9 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import type { UserRole } from "@/types/auth";
 
-export type Role = "seeker" | "recruiter" | "admin" | "recruite";
+export type Role = UserRole | "recruite";
 
 export interface MenuItem {
   id: string;
@@ -170,7 +171,7 @@ export function DashboardSidebar() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const rawRole = (session?.user as { role?: string } | undefined)?.role || "seeker";
+  const rawRole = session?.user?.role || "seeker";
   const role = rawRole.toLowerCase();
   const currentMenuItems = menuItemsByRols[role] || menuItemsByRols.seeker;
   const roleLabel = roleTitles[role] || "Dashboard";

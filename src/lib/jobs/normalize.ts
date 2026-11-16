@@ -1,44 +1,12 @@
-import {
-  BarChart3Icon,
-  BriefcaseIcon,
-  Code2Icon,
-  DatabaseIcon,
-  MegaphoneIcon,
-  PaletteIcon,
-  PenToolIcon,
-  ServerIcon,
-  ShieldCheckIcon,
-  type LucideIcon,
-} from "lucide-react";
-import type { JobApiRecord } from "@/lib/api/jobs";
-
-export type JobStatus = "active" | "expired";
-export type LocationType = "remote" | "hybrid" | "onsite";
-export type SalaryPeriod = "hr" | "day" | "mo" | "yr";
-
-export type Salary = {
-  min: number;
-  max: number;
-  currency: string;
-  period: SalaryPeriod;
-};
-
-export type JobPost = {
-  _id: string;
-  title: string;
-  department: string;
-  company: string;
-  location: string;
-  locationType: LocationType;
-  employmentType: string;
-  salary: Salary;
-  applicants: number;
-  status: JobStatus;
-  statusNote: string;
-  deadline: string;
-  icon: LucideIcon;
-  accent: { box: string; icon: string };
-};
+import { toJobIconName } from "@/lib/jobs/icons";
+import type {
+  JobAccent,
+  JobApiRecord,
+  JobPost,
+  JobStatus,
+  LocationType,
+  SalaryPeriod,
+} from "@/types/jobs";
 
 const asRecord = (value: unknown): JobApiRecord | null =>
   typeof value === "object" && value !== null && !Array.isArray(value)
@@ -63,28 +31,7 @@ const asNumber = (value: unknown): number | null => {
   return null;
 };
 
-const iconsByName: Record<string, LucideIcon> = {
-  Code2: Code2Icon,
-  Code2Icon,
-  PenTool: PenToolIcon,
-  PenToolIcon,
-  Server: ServerIcon,
-  ServerIcon,
-  Megaphone: MegaphoneIcon,
-  MegaphoneIcon,
-  ShieldCheck: ShieldCheckIcon,
-  ShieldCheckIcon,
-  BarChart3: BarChart3Icon,
-  BarChart3Icon,
-  Palette: PaletteIcon,
-  PaletteIcon,
-  Database: DatabaseIcon,
-  DatabaseIcon,
-  Briefcase: BriefcaseIcon,
-  BriefcaseIcon,
-};
-
-const defaultAccents: JobPost["accent"][] = [
+const defaultAccents: JobAccent[] = [
   { box: "bg-sky-500/10", icon: "text-sky-400" },
   { box: "bg-orange-500/10", icon: "text-orange-400" },
   { box: "bg-cyan-500/10", icon: "text-cyan-400" },
@@ -93,14 +40,7 @@ const defaultAccents: JobPost["accent"][] = [
   { box: "bg-rose-500/10", icon: "text-rose-400" },
 ];
 
-const resolveIcon = (name: string | null): LucideIcon =>
-  (name ? iconsByName[name.replace(/[^a-zA-Z0-9]/g, "")] : undefined) ??
-  BriefcaseIcon;
-
-const resolveAccent = (
-  value: unknown,
-  index: number,
-): JobPost["accent"] => {
+const resolveAccent = (value: unknown, index: number): JobAccent => {
   const record = asRecord(value);
   const box = asString(record?.box);
   const icon = asString(record?.icon);
@@ -150,10 +90,7 @@ const resolveLocationType = (
   return "onsite";
 };
 
-const resolveStatus = (
-  record: JobApiRecord,
-  deadline: string,
-): JobStatus => {
+const resolveStatus = (record: JobApiRecord, deadline: string): JobStatus => {
   const explicit = asString(record.status)?.toLowerCase();
 
   if (explicit === "active" || explicit === "expired") return explicit;
@@ -161,9 +98,7 @@ const resolveStatus = (
   if (!deadline) return "active";
 
   const closedAt = new Date(
-    /^\d{4}-\d{2}-\d{2}$/.test(deadline)
-      ? `${deadline}T23:59:59Z`
-      : deadline,
+    /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? `${deadline}T23:59:59Z` : deadline,
   ).getTime();
 
   if (Number.isNaN(closedAt)) return "active";
@@ -183,10 +118,7 @@ const resolveApplicants = (value: unknown): number => {
  * Two payload flavours exist today (form-created + seeded demo), and either
  * can be missing optional fields, so every value falls back to a safe default.
  */
-export const toJobPost = (
-  raw: unknown,
-  index = 0,
-): JobPost | null => {
+export const toJobPost = (raw: unknown, index = 0): JobPost | null => {
   const record = asRecord(raw);
   if (!record) return null;
 
@@ -199,7 +131,6 @@ export const toJobPost = (
   const deadline =
     asString(record.deadline) ?? asString(record.applicationDeadline) ?? "";
   const status = resolveStatus(record, deadline);
-  const iconName = asString(record.icon);
 
   return {
     _id: id,
@@ -225,13 +156,13 @@ export const toJobPost = (
       asString(record.statusNote) ??
       (status === "active" ? "Open for applications" : "Closed"),
     deadline,
-    icon: resolveIcon(iconName),
+    icon: toJobIconName(asString(record.icon)),
     accent: resolveAccent(record.accent, index),
   };
 };
 
-export const toJobPosts = (records: JobApiRecord[]): JobPost[] =>
-  records.flatMap((record, index) => {
+export const toJobPosts = (records: JobApiRecord[] | null | undefined): JobPost[] =>
+  (records ?? []).flatMap((record, index) => {
     const job = toJobPost(record, index);
     return job ? [job] : [];
   });

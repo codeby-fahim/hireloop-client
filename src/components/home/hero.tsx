@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const trending = [
-  { label: "Product Designer", href: "/jobs?q=Product+Designer" },
-  { label: "AI Engineering", href: "/jobs?q=AI+Engineering" },
-  { label: "Dev-ops Engineer", href: "/jobs?q=Dev-ops+Engineer" },
+  { label: "Product Designer", href: "/browse-jobs?q=Product+Designer" },
+  { label: "AI Engineering", href: "/browse-jobs?q=AI+Engineering" },
+  { label: "Dev-ops Engineer", href: "/browse-jobs?q=Dev-ops+Engineer" },
 ];
 
 const stats = [
@@ -92,7 +92,7 @@ export function Hero() {
           </p>
 
           <form
-            action="/jobs"
+            action="/browse-jobs"
             role="search"
             className="mt-10 w-full sm:mt-12"
           >
