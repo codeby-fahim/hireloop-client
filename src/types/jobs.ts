@@ -98,6 +98,39 @@ export type JobPost = {
 };
 
 /* -------------------------------------------------------------------------- */
+/* Job detail                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export const BENEFIT_ICONS = [
+  "health",
+  "retirement",
+  "hardware",
+  "pto",
+  "remote",
+  "learning",
+] as const;
+export type BenefitIconName = (typeof BENEFIT_ICONS)[number];
+
+export type JobBenefit = {
+  label: string;
+  icon: BenefitIconName;
+};
+
+/** Normalised job plus the extra content the public detail page renders. */
+export type JobDetails = JobPost & {
+  description: string;
+  responsibilities: string[];
+  qualifications: string[];
+  skills: string[];
+  benefits: JobBenefit[];
+  experience: string;
+  companySize: string;
+  industry: string;
+  website: string;
+  verified: boolean;
+};
+
+/* -------------------------------------------------------------------------- */
 /* API contracts                                                              */
 /* -------------------------------------------------------------------------- */
 

@@ -1,10 +1,16 @@
-import type { Salary } from "@/types/jobs";
+import type { LocationType, Salary } from "@/types/jobs";
 
 const periodLabels: Record<Salary["period"], string> = {
   hr: "hr",
   day: "day",
   mo: "mo",
   yr: "yr",
+};
+
+export const LOCATION_TYPE_LABELS: Record<LocationType, string> = {
+  remote: "Remote",
+  hybrid: "Hybrid",
+  onsite: "On-site",
 };
 
 const compact = (value: number) =>

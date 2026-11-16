@@ -17,7 +17,7 @@ import {
   ZapIcon,
 } from "lucide-react";
 import { getJobs } from "@/lib/api/jobs";
-import { jobIcons } from "@/lib/jobs/icons";
+import { formatSalary, LOCATION_TYPE_LABELS } from "@/lib/jobs/format";
 import {
   BROWSE_PAGE_SIZE,
   buildBrowseUrl,
@@ -29,15 +29,15 @@ import {
   sortJobs,
   type BrowseState,
 } from "@/lib/jobs/browse";
-import { formatSalary } from "@/lib/jobs/format";
 import { toJobPosts } from "@/lib/jobs/normalize";
 import { cn } from "@/lib/utils";
 import { ActiveFilters } from "@/components/browse/active-filters";
 import { BookmarkButton } from "@/components/browse/bookmark-button";
 import { BrowseSearch } from "@/components/browse/browse-search";
 import { FiltersPanel } from "@/components/browse/filters-panel";
+import { JobIcon } from "@/components/browse/job-icon";
 import { SortSelect } from "@/components/browse/sort-select";
-import type { JobIconName, JobPost } from "@/types/jobs";
+import type { JobPost } from "@/types/jobs";
 
 export const metadata: Metadata = {
   title: "Browse Jobs | HireLoop",
@@ -51,24 +51,6 @@ type BrowseJobsPageProps = {
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
-
-const locationLabels = {
-  remote: "Remote",
-  hybrid: "Hybrid",
-  onsite: "On-site",
-} as const;
-
-function JobIcon({
-  name,
-  className,
-}: {
-  name: JobIconName;
-  className?: string;
-}) {
-  const Icon = jobIcons[name];
-
-  return <Icon className={className} strokeWidth={1.75} aria-hidden="true" />;
-}
 
 function Chip({
   icon: Icon,
@@ -118,7 +100,7 @@ function JobCard({ job }: { job: JobPost }) {
   const isHot = isActive && job.applicants >= 10;
 
   return (
-    <li className="rounded-2xl border border-white/[0.07] bg-[#0b0b0e] p-4 transition-colors hover:border-brand/30 hover:bg-[#0d0d13] sm:p-5">
+    <li className="group relative rounded-2xl border border-white/[0.07] bg-[#0b0b0e] p-4 transition-colors hover:border-brand/30 hover:bg-[#0d0d13] sm:p-5">
       <div className="flex items-start gap-3.5 sm:gap-4">
         <span
           className={cn(
@@ -136,7 +118,15 @@ function JobCard({ job }: { job: JobPost }) {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="truncate text-[15px] leading-snug font-semibold text-white sm:text-base">
-                {job.title}
+                <Link
+                  href={`/browse-jobs/${job._id}`}
+                  className={cn(
+                    "rounded-sm transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-brand-soft",
+                    focusRing,
+                  )}
+                >
+                  {job.title}
+                </Link>
               </h3>
               <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-400">
                 <span className="truncate font-medium text-zinc-300">
@@ -165,13 +155,15 @@ function JobCard({ job }: { job: JobPost }) {
               </p>
             </div>
 
-            <BookmarkButton jobId={job._id} jobTitle={job.title} />
+            <span className="relative z-10 shrink-0">
+              <BookmarkButton jobId={job._id} jobTitle={job.title} />
+            </span>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Chip icon={WalletIcon}>{formatSalary(job.salary)}</Chip>
             <Chip icon={BriefcaseIcon}>{job.employmentType}</Chip>
-            <Chip icon={GlobeIcon}>{locationLabels[job.locationType]}</Chip>
+            <Chip icon={GlobeIcon}>{LOCATION_TYPE_LABELS[job.locationType]}</Chip>
             <Chip icon={LayersIcon}>{job.department}</Chip>
           </div>
         </div>
@@ -206,6 +198,11 @@ function JobCard({ job }: { job: JobPost }) {
             />
             {job.statusNote}
           </span>
+          <ChevronRightIcon
+            className="size-3.5 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-soft"
+            strokeWidth={2}
+            aria-hidden="true"
+          />
         </div>
       </div>
     </li>
@@ -234,7 +231,7 @@ function Pagination({
           aria-label="Previous page"
           className={cn(
             arrows,
-            "border-white/10 bg-white/[0.03] text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
+            "border-white/10 bg-white/3 text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
             focusRing,
           )}
         >
@@ -243,7 +240,7 @@ function Pagination({
       ) : (
         <span
           aria-disabled="true"
-          className={cn(arrows, "border-white/5 bg-white/[0.02] text-zinc-700")}
+          className={cn(arrows, "border-white/5 bg-white/2 text-zinc-700")}
         >
           <ChevronLeftIcon className="size-4" aria-hidden="true" />
         </span>
@@ -268,7 +265,7 @@ function Pagination({
               arrows,
               token === page
                 ? "border-brand bg-brand font-semibold text-white"
-                : "border-white/10 bg-white/[0.03] text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
+                : "border-white/10 bg-white/3 text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
               focusRing,
             )}
           >
@@ -283,7 +280,7 @@ function Pagination({
           aria-label="Next page"
           className={cn(
             arrows,
-            "border-white/10 bg-white/[0.03] text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
+            "border-white/10 bg-white/3 text-zinc-300 transition-colors hover:border-brand/40 hover:text-white",
             focusRing,
           )}
         >
@@ -292,7 +289,7 @@ function Pagination({
       ) : (
         <span
           aria-disabled="true"
-          className={cn(arrows, "border-white/5 bg-white/[0.02] text-zinc-700")}
+          className={cn(arrows, "border-white/5 bg-white/2 text-zinc-700")}
         >
           <ChevronRightIcon className="size-4" aria-hidden="true" />
         </span>
@@ -303,8 +300,8 @@ function Pagination({
 
 function NoResults({ hasFilters }: { hasFilters: boolean }) {
   return (
-    <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-16 text-center">
-      <span className="mx-auto grid size-12 place-items-center rounded-full border border-white/8 bg-white/[0.04]">
+    <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/2 px-6 py-16 text-center">
+      <span className="mx-auto grid size-12 place-items-center rounded-full border border-white/8 bg-white/4">
         <SearchXIcon className="size-5 text-zinc-400" aria-hidden="true" />
       </span>
       <p className="mt-4 text-sm font-semibold text-white">
@@ -319,7 +316,7 @@ function NoResults({ hasFilters }: { hasFilters: boolean }) {
         <Link
           href={buildBrowseUrl()}
           className={cn(
-            "mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-white/8",
+            "mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/4 px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-white/8",
             focusRing,
           )}
         >
@@ -346,7 +343,7 @@ function ErrorState({ message }: { message: string }) {
       <Link
         href={buildBrowseUrl()}
         className={cn(
-          "mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-white/8",
+          "mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/4 px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-white/8",
           focusRing,
         )}
       >

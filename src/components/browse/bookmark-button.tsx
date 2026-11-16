@@ -3,45 +3,13 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { BookmarkIcon } from "lucide-react";
 import { toast } from "sonner";
+import { createJobIdStore } from "@/lib/jobs/storage";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "hireloop:saved-jobs";
-const listeners = new Set<() => void>();
+const savedJobs = createJobIdStore("hireloop:saved-jobs");
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b0e]";
-
-/**
- * Saved jobs live in localStorage. A tiny external store keeps every
- * bookmark button in sync (and lets React read the value without a
- * setState-in-effect hydration mismatch).
- */
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-function notify() {
-  listeners.forEach((listener) => listener());
-}
-
-function readSavedJobs(): string[] {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-
-    return Array.isArray(parsed)
-      ? parsed.filter((value): value is string => typeof value === "string")
-      : [];
-  } catch {
-    return [];
-  }
-}
 
 const getServerSnapshot = () => false;
 
@@ -53,31 +21,27 @@ export function BookmarkButton({
   jobTitle: string;
 }) {
   const getSnapshot = useCallback(
-    () => readSavedJobs().includes(jobId),
+    () => savedJobs.read().includes(jobId),
     [jobId],
   );
-  const saved = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const saved = useSyncExternalStore(
+    savedJobs.subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   const toggle = () => {
-    const current = readSavedJobs();
-    const isSaved = current.includes(jobId);
-    const next = isSaved
-      ? current.filter((id) => id !== jobId)
-      : [...current, jobId];
+    const result = savedJobs.toggle(jobId);
 
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
+    if (!result) {
       toast.error("Could not save this job in your browser.");
       return;
     }
 
-    notify();
-
-    if (isSaved) {
-      toast.info(`Removed “${jobTitle}” from saved jobs.`);
-    } else {
+    if (result === "saved") {
       toast.success(`Saved “${jobTitle}”.`);
+    } else {
+      toast.info(`Removed “${jobTitle}” from saved jobs.`);
     }
   };
 
